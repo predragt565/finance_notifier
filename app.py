@@ -32,7 +32,7 @@ st.sidebar.title("🔧 Configuration")
 # Section: Stocks
 st.sidebar.markdown("---")
 st.sidebar.subheader("📈 Stocks")
-selected_stock = st.sidebar.selectbox("Add Stock", options=["AAPL", "MSFT", "O", "WPY.F", "QDVX.DE"])
+selected_stock = st.sidebar.selectbox("Add Stock", options=["AAPL", "MSFT", "RHM.DE", "O", "WPY.F", "QDVX.DE"])
 # Initialize session state list
 if "tickers" not in st.session_state:
     st.session_state["tickers"] = []

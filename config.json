@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "DEBUG",
+    "level": "INFO",
     "to_file": true,
     "file_path": "alerts.log",
     "file_max_bytes": 1000000,
@@ -13,12 +13,16 @@
   },
   "tickers": [
     "AAPL",
-    "MSFT"
+    "MSFT",
+    "RHM.DE",
+    "O",
+    "WPY.F",
+    "QDVX.DE"
   ],
-  "threshold_pct": 0.05,
+  "threshold_pct": 0.0,
   "state_file": "alert_state.json",
   "market_hours": {
-    "enabled": true,
+    "enabled": false,
     "tz": "Europe/Berlin",
     "start_hour": 7,
     "end_hour": 23,
