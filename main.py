@@ -11,7 +11,10 @@ from datetime import datetime
 from src.app.market import get_open_and_last
 from src.app.state import load_state, save_state
 from src.app.ntfy import notify_ntfy
+from dotenv import load_dotenv  # Load environment from .env
 
+# Ensure .env variables (e.g., NTFY_TOPIC) are available
+load_dotenv()
 
 def main():
     """

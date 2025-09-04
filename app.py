@@ -46,7 +46,7 @@ selected_tickers = st.sidebar.multiselect("Selected Tickers", options=st.session
 # Sync removals (user manually unchecking tickers)
 st.session_state["tickers"] = selected_tickers
 
-threshold_pct = st.sidebar.slider("Alert threshold (%)", min_value=0.0, max_value=10.0, value=cfg["threshold_pct"], step=0.05)
+threshold_pct = st.sidebar.slider("Alert threshold (%)", min_value=0.019, max_value=10.0, value=cfg["threshold_pct"], step=0.02)
 
 # Sub-section: Market Hours
 st.sidebar.markdown("---")
@@ -79,6 +79,8 @@ refresh_interval = st.sidebar.slider("Interval (min)", 1, 10, cfg["ntfy"]["refre
 # Section: Logging
 st.sidebar.markdown("---")
 st.sidebar.subheader("📋 Logging")
+print("Loaded log level:", cfg["log"]["level"])
+
 log_level = st.sidebar.selectbox("Log level", ["DEBUG", "INFO", "WARNING", "ERROR"], index=["DEBUG", "INFO", "WARNING", "ERROR"].index(cfg["log"]["level"]))
 log_to_file = st.sidebar.checkbox("Log to File", value=cfg["log"]["to_file"])
 

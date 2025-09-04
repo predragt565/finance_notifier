@@ -2,7 +2,7 @@ from __future__ import annotations
 import os, json
 from pathlib import Path
 from typing import Any, Dict
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # Default configuration values used if no config.json or .env overrides are provided.
 DEFAULTS: Dict[str, Any] = {
@@ -64,7 +64,7 @@ def load_config(path: str = "config.json") -> Dict[str, Any]:
     3. Overrides from environment variables (.env or OS-level)
     """
     # DONE: Load environment variables via load_dotenv()
-    load_dotenv()
+    # load_dotenv()
 
     # DONE: Read config.json (if it exists) and parse JSON into 'user'
     user = {}

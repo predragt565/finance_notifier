@@ -19,7 +19,7 @@
     "WPY.F",
     "QDVX.DE"
   ],
-  "threshold_pct": 0.0,
+  "threshold_pct": 0.04,
   "state_file": "alert_state.json",
   "market_hours": {
     "enabled": false,
@@ -30,7 +30,7 @@
     "week_days_only": true
   },
   "test": {
-    "enabled": false,
+    "enabled": true,
     "bypass_market_hours": true,
     "force_delta_pct": 3.14159265,
     "dry_run": false
