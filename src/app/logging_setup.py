@@ -62,10 +62,10 @@ def setup_logging(cfg_log: Dict[str, Any]) -> logging.Logger:
 
     # DONE: Log a debug message summarizing the final logging setup
     logger.debug(
-        "Logging initialized: level=%s, to_file=%s",
+        "Logging initialized: level=%s, to_file=%s, path=%s",
         level_name,
         cfg_log.get("to_file", False),
-        cfg_log.get("to_file", False)
+        cfg_log.get("file_path", "alert.log")
         )
 
     # DONE: Return the configured logger

@@ -12,6 +12,8 @@ from .ntfy import notify_ntfy
 from .company import auto_keywords
 from .news import fetch_headlines, build_query, filter_titles
 from time import strftime
+import pprint
+from src.app.utils import mask_secret
 
 logger = logging.getLogger("stock-alerts")
 
@@ -295,6 +297,20 @@ def run_once(
     
     # DONE: Log job start and determine market-hours eligibility
     logger.info("=== Monitoring cycle started ===")
+    
+    # Dump parameters content from Streamlit app
+    import pprint
+    from src.app.utils import mask_secret
+    logger.debug("run_once() called with params:\n%s", pprint.pformat({
+        "tickers": tickers,
+        "threshold_pct": threshold_pct,
+        "ntfy_server": ntfy_server,
+        "ntfy_topic": mask_secret(ntfy_topic),
+        "state_file": str(state_file),
+        "market_hours_cfg": market_hours_cfg,
+        "test_cfg": test_cfg,
+        "news_cfg": news_cfg,
+    }))
 
     # 1) Market hours check
     if test_cfg.get("enabled") and not test_cfg.get("bypass_market_hours", False):

@@ -35,16 +35,19 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
                         "Intraday %s: interval=%s open=%.4f last=%.4f",
                         ticker, interval, open_today, last_price,
                     )
-                    print("df[0]: ", df[0])
-                    print("df[-1]: ", df[-1])
+                    # print("df[0]: ", df[0])
+                    # print("df[-1]: ", df[-1])
                     return open_today, last_price
                 else:
                     logger.debug(
-                        "Empty or invalid intraday data (%s, %s), retry %d",
+                        "No intraday %s data for %s (attempt %d) — market may be closed",
                         ticker, interval, attempt + 1,
                     )
             except Exception as e:
-                logger.warning("Intraday fetch failed for %s (%s, %s): %r", ticker, interval, attempt + 1, e)
+                logger.warning(
+                    "Intraday fetch error for %s (interval=%s, attempt=%d): %s",
+                    ticker, interval, attempt + 1, repr(e),
+                )
             
             time.sleep(0.4)
 
@@ -55,7 +58,7 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
             row = df.iloc[-1]
             open_today, last_price = float(row["Open"]), float(row["Close"])
             logger.debug(
-                "Fallback daily data %s: open=%.4f last=%.4f",
+                "Fallback daily data %s: open=%.4f last=%.4f (market likely closed)",
                 ticker, open_today, last_price,
             )
             return open_today, last_price
@@ -63,7 +66,7 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
             logger.warning("Primary daily fallback empty for %s → trying 5d", ticker)
 
     except Exception as e:
-        logger.warning("Fallback daily fetch failed for %s: %r", ticker, e)
+        logger.warning("Fallback daily fetch failed for %s: %r  → will try 5d next", ticker, repr(e))
 
     # DONE: Second fallback to "5d" data
     try:
@@ -72,7 +75,7 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
             row = df.iloc[-1]
             open_today, last_price = float(row["Open"]), float(row["Close"])
             logger.debug(
-                "Second fallback (5d) data %s: open=%.4f last=%.4f",
+                "Fallback 5-day data for %s: open=%.4f last=%.4f (using last trading day)",
                 ticker, open_today, last_price,
             )
             return open_today, last_price
@@ -80,7 +83,7 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
             raise RuntimeError(f"No usable 5d data for {ticker}")
 
     except Exception as e:
-        logger.error("Second fallback (5d) fetch failed for %s: %r", ticker, e)
+        logger.error("Second fallback (5d) fetch failed for %s: %r", ticker, repr(e))
         raise RuntimeError(f"Could not retrieve price data for {ticker}") from e
 
     # pass  # Remove once implemented

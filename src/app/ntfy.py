@@ -81,8 +81,11 @@ def notify_ntfy(
     try:
         r = requests.post(url, data=message.encode("utf-8"), headers=headers, timeout=20)
         r.raise_for_status()
-        logger.debug("ntfy POST success to %s (%d)", url, r.status_code)
+        masked_url = f"{server.rstrip('/')}/{mask_secret(topic)}"
+        logger.debug("ntfy POST success to %s (%d)", masked_url, r.status_code)
+
     except requests.RequestException as e:
-        logger.warning("ntfy POST failed to %s: %s", url, e)
+        masked_url = f"{server.rstrip('/')}/{mask_secret(topic)}"
+        logger.warning("ntfy POST failed to %s: %s", masked_url, e)
 
     # pass  # Remove once implemented

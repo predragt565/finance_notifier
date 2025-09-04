@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "DEBUG",              
+    "level": "INFO",              
     "to_file": true,              
     "file_path": "alerts.log",    
     "file_max_bytes": 1000000,   
@@ -9,7 +9,7 @@
   "ntfy": {
     "server": "https://ntfy.sh"
   },
-  "tickers": ["AAPL", "MSFT", "O", "WPY.F", "QDVX.DE"],           
+  "tickers": ["AAPL", "MSFT", "RHM.DE", "O", "QDVX.DE"],           
   "threshold_pct": 0.01,           
   "state_file": "alert_state.json",
   "market_hours": {
