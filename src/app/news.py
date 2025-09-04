@@ -14,7 +14,7 @@ def build_query(name: str, ticker: str) -> str:
     # Quote company name to prefer exact matches; include ticker as-is.
     # A small set of finance terms increases relevance.
     finance_terms = "(stock OR shares OR finance OR earnings OR results OR Aktie OR Börse OR Gewinn OR Verlust)"
-    print(f"\"{name}\" OR {ticker} {finance_terms}")
+    # print(f"\"{name}\" OR {ticker} {finance_terms}")
     return f"\"{name}\" OR {ticker} {finance_terms}"
     # pass
 
@@ -83,7 +83,9 @@ def fetch_headlines(
             published_dt = dt.datetime(*t[:6], tzinfo=dt.timezone.utc)
             if published_dt < cutoff:
                 continue
-
+        else:
+            published_dt = None # fallback
+            
         title = (getattr(e, "title", "") or "").strip()
         link = (getattr(e, "link", "") or "").strip()
 
@@ -96,7 +98,12 @@ def fetch_headlines(
             source = str(src).strip()
 
     # DONE: Stop after collecting 'limit' items
-        results.append({"title": title, "source": source, "link": link})
+        results.append({
+            "title": title, 
+            "source": source, 
+            "link": link,
+            "published": published_dt.isoformat() if published_dt else "",  # RSS feed timestamp
+            })
         if len(results) >= int(limit):
             break
 

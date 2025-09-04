@@ -11,6 +11,7 @@ from .state import load_state, save_state
 from .ntfy import notify_ntfy
 from .company import auto_keywords
 from .news import fetch_headlines, build_query, filter_titles
+from time import strftime
 
 logger = logging.getLogger("stock-alerts")
 
@@ -60,7 +61,7 @@ def _ensure_https(u: str) -> str:
     # pass
 
 
-def _extract_original_url(link: str, *, resolve_redirects: bool = True, timeout: float = 3.0) -> str:
+def _extract_original_url(link: str, resolve_redirects: bool = True, timeout: float = 3.0) -> str:
     """
     Try to extract the original article URL from Google News redirect links.
 
@@ -177,14 +178,33 @@ def _format_headlines(items: List[Dict[str, Any]]) -> str:
         title = (item.get("title") or "").strip() or "(untitled)"
         raw_link = item.get("link") or ""
         link = _extract_original_url(raw_link)  # best-effort clean URL
-        source = (item.get("souce") or "").strip() or _domain(link)
+        source = (item.get("source") or "").strip() or _domain(link)
+        domain = _domain(link)
+        
+        # Smart short link for mobile: domain only or trimmed
+        short_url = (
+            link if len(link) <= 60 else f"https://{domain}"
+        )
+        
+        # Format timestamp
+        t_raw = item.get("published", "")
+        if t_raw:
+            try:
+                dt_obj = dt.datetime.fromisoformat(t_raw)
+                ts = dt_obj.strftime("%H:%M")
+                clock = f"🕒 {ts} "
+            except Exception:
+                clock = ""
+        else:
+            clock = ""
         
         # Markdown line + plain URL line
-        lines.append(f"- [{title}]({link}) — **{source}**\n  {link}")
+        # lines.append(f"• [{title}]({link}) — {source}\n   🔗 {short_url}")
+        lines.append(f"• {clock}{title}\n 🔗 {short_url}")
     
     # DONE: Join lines with newline characters and return the result
     return "\n".join(lines)
-    pass
+    # pass
 
 
 def now_tz(tz: str) -> dt.datetime:
@@ -293,7 +313,7 @@ def run_once(
             open_p, last_p = get_open_and_last(symbol)
             delta_pct = ((last_p - open_p) / open_p) * 100.0
         except Exception as e:
-            logger.warning("Could not fetch prices for %s: %s", symbol, e)
+            logger.warning("Could not fetch prices for %s: %r", symbol, e)
             continue
 
     # DONE: Compute Δ% and apply test overrides if needed
@@ -334,8 +354,25 @@ def run_once(
 
     # DONE: Send notification via notify_ntfy and persist state via save_state
         # 5) Send notification
-        arrow = "📈" if delta_pct >= 0 else "📉"    
-        body = f"{symbol} Δ={delta_pct:.2f}%\n{headlines_text}"
+        arrow = "🟢 ▲" if delta_pct >= 0 else "🔴 ▼"    
+        body_lines = [f"{arrow} {symbol} Δ={delta_pct:.2f}% vs. Open"]
+        
+        # .append for one-line, .extend for multiple lines - list
+        body_lines.extend([
+            f"Open: {open_p:.4f}",
+            f"Last: {last_p:.4f}",
+        ])
+        if headlines_text:
+            # Force clean formatting, split into lines and re-assemble
+            headlines_lines = headlines_text.strip().splitlines()
+            body_lines.append("")  # blank line before headlines
+            body_lines.append("📰 News:")
+            body_lines.extend(headlines_lines)
+        body = "\n".join(body_lines)
+        # print("body:\n")
+        # print(body)
+        
+        
         try:
             notify_ntfy(
                 ntfy_server,

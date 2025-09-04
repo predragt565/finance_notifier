@@ -69,11 +69,11 @@ def notify_ntfy(
         "Priority": "high",
     }
 
-    # REVIEW: If markdown is enabled, set the appropriate header
+    # DONE: If markdown is enabled, set the appropriate header
     if markdown:
         headers["Markdown"] = "yes"
 
-    # REVIEW: If a click_url is provided, add it to headers
+    # DONE: If a click_url is provided, add it to headers
     if click_url:
         headers["Click"] = click_url
 

@@ -23,36 +23,64 @@ def get_open_and_last(ticker: str) -> Tuple[float, float]:
 
         # DONE: For each interval, attempt up to two retries
         for attempt in range(2):
-            df = yf.Ticker(ticker).history(
-                period="1d", interval=interval, auto_adjust=False
-            )
-            if not df.empty:
-                open_today = float(df.iloc[0]["Open"])
-                last_price = float(df.iloc[-1]["Close"])
-                logger.debug(
-                    "Intraday %s: interval=%s open=%.4f last=%.4f",
-                    ticker, interval, open_today, last_price,
+            try:
+                df = yf.Ticker(ticker).history(
+                    period="1d", interval=interval, auto_adjust=False
                 )
-                return open_today, last_price
+                # if not df.empty:
+                if not df.empty and "Open" in df.columns and "Close" in df.columns:
+                    open_today = float(df.iloc[0]["Open"])
+                    last_price = float(df.iloc[-1]["Close"])
+                    logger.debug(
+                        "Intraday %s: interval=%s open=%.4f last=%.4f",
+                        ticker, interval, open_today, last_price,
+                    )
+                    print("df[0]: ", df[0])
+                    print("df[-1]: ", df[-1])
+                    return open_today, last_price
+                else:
+                    logger.debug(
+                        "Empty or invalid intraday data (%s, %s), retry %d",
+                        ticker, interval, attempt + 1,
+                    )
+            except Exception as e:
+                logger.warning("Intraday fetch failed for %s (%s, %s): %r", ticker, interval, attempt + 1, e)
             
-            logger.debug(
-                "Empty intraday data (%s, %s), retry %d",
-                ticker, interval, attempt + 1,
-            )
             time.sleep(0.4)
 
-    # DONE: Fallback to daily data ("1d" interval) and raise RuntimeError if empty
-    df = yf.Ticker(ticker).history(period="1d", interval="1d", auto_adjust=False)
-    if df.empty:
-        raise RuntimeError(f"No data available for {ticker}")
+    # DONE: Fallback to daily data ("1d" interval)
+    try:
+        df = yf.Ticker(ticker).history(period="1d", interval="1d", auto_adjust=False)
+        if not df.empty and "Open" in df.columns and "Close" in df.columns:
+            row = df.iloc[-1]
+            open_today, last_price = float(row["Open"]), float(row["Close"])
+            logger.debug(
+                "Fallback daily data %s: open=%.4f last=%.4f",
+                ticker, open_today, last_price,
+            )
+            return open_today, last_price
+        else:
+            logger.warning("Primary daily fallback empty for %s → trying 5d", ticker)
 
-    # DONE: Extract open and close from the last row, log them, and return
-    row = df.iloc[-1]
-    open_today, last_price = float(row["Open"]), float(row["Close"])
-    logger.debug(
-        "Fallback daily data %s: open=%.4f last=%.4f",
-        ticker, open_today, last_price,
-    )
-    return open_today, last_price
+    except Exception as e:
+        logger.warning("Fallback daily fetch failed for %s: %r", ticker, e)
+
+    # DONE: Second fallback to "5d" data
+    try:
+        df = yf.Ticker(ticker).history(period="5d", interval="1d", auto_adjust=False)
+        if not df.empty and "Open" in df.columns and "Close" in df.columns:
+            row = df.iloc[-1]
+            open_today, last_price = float(row["Open"]), float(row["Close"])
+            logger.debug(
+                "Second fallback (5d) data %s: open=%.4f last=%.4f",
+                ticker, open_today, last_price,
+            )
+            return open_today, last_price
+        else:
+            raise RuntimeError(f"No usable 5d data for {ticker}")
+
+    except Exception as e:
+        logger.error("Second fallback (5d) fetch failed for %s: %r", ticker, e)
+        raise RuntimeError(f"Could not retrieve price data for {ticker}") from e
 
     # pass  # Remove once implemented

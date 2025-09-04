@@ -9,27 +9,27 @@
   "ntfy": {
     "server": "https://ntfy.sh"
   },
-  "tickers": ["AAPL", "O", "WPY.F", "QDVX.DE"],           
-  "threshold_pct": 0.001,           
+  "tickers": ["AAPL", "MSFT", "O", "WPY.F", "QDVX.DE"],           
+  "threshold_pct": 0.01,           
   "state_file": "alert_state.json",
   "market_hours": {
     "enabled": true,             
     "tz": "Europe/Berlin",
     "start_hour": 8,           
-    "end_hour": 22,            
+    "end_hour": 23,            
     "days_mon_to_fri_only": true
   },
   "news": {
     "enabled": true,
-    "limit": 2,             
-    "lookback_hours": 12,  
+    "limit": 1,             
+    "lookback_hours": 6,  
     "lang": "de",
     "country": "DE"      
   },
   "test": {
-    "enabled": true,
+    "enabled": false,
     "bypass_market_hours": true,
-    "force_delta_pct": 4.3,     
+    "force_delta_pct": 3.14159265,     
     "dry_run": false
   }
 }
