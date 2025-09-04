@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "INFO",
+    "level": "DEBUG",
     "to_file": true,
     "file_path": "alerts.log",
     "file_max_bytes": 1000000,
@@ -12,16 +12,16 @@
     "refresh_interval": 2
   },
   "tickers": [
-    "MSFT",
-    "AAPL"
+    "AAPL",
+    "MSFT"
   ],
-  "threshold_pct": 0.0,
+  "threshold_pct": 0.05,
   "state_file": "alert_state.json",
   "market_hours": {
     "enabled": true,
     "tz": "Europe/Berlin",
     "start_hour": 7,
-    "end_hour": 22,
+    "end_hour": 23,
     "days_mon_to_fri_only": true,
     "week_days_only": true
   },
@@ -32,7 +32,7 @@
     "dry_run": false
   },
   "news": {
-    "enabled": false,
+    "enabled": true,
     "limit": 1,
     "lookback_hours": 6,
     "lang": "de",
