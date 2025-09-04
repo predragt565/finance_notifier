@@ -294,6 +294,8 @@ def run_once(
       - Reads/writes the alert state JSON (anti-spam)
       - Writes logs according to logging setup
     """
+    # for debugging only
+    # print("📦 run_once() received topic:", ntfy_topic)
     
     # DONE: Log job start and determine market-hours eligibility
     logger.info("=== Monitoring cycle started ===")

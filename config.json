@@ -1,35 +1,41 @@
 {
   "log": {
-    "level": "INFO",              
-    "to_file": true,              
-    "file_path": "alerts.log",    
-    "file_max_bytes": 1000000,   
+    "level": "INFO",
+    "to_file": true,
+    "file_path": "alerts.log",
+    "file_max_bytes": 1000000,
     "file_backup_count": 3
   },
   "ntfy": {
-    "server": "https://ntfy.sh"
+    "server": "https://ntfy.sh",
+    "topic": "${NTFY_TOPIC}",
+    "refresh_interval": 2
   },
-  "tickers": ["AAPL", "MSFT", "RHM.DE", "O", "QDVX.DE"],           
-  "threshold_pct": 0.01,           
+  "tickers": [
+    "MSFT",
+    "AAPL"
+  ],
+  "threshold_pct": 0.0,
   "state_file": "alert_state.json",
   "market_hours": {
-    "enabled": true,             
-    "tz": "Europe/Berlin",
-    "start_hour": 8,           
-    "end_hour": 23,            
-    "days_mon_to_fri_only": true
-  },
-  "news": {
     "enabled": true,
-    "limit": 1,             
-    "lookback_hours": 6,  
-    "lang": "de",
-    "country": "DE"      
+    "tz": "Europe/Berlin",
+    "start_hour": 7,
+    "end_hour": 22,
+    "days_mon_to_fri_only": true,
+    "week_days_only": true
   },
   "test": {
     "enabled": false,
     "bypass_market_hours": true,
-    "force_delta_pct": 3.14159265,     
+    "force_delta_pct": 3.14159265,
     "dry_run": false
+  },
+  "news": {
+    "enabled": false,
+    "limit": 1,
+    "lookback_hours": 6,
+    "lang": "de",
+    "country": "de"
   }
 }
