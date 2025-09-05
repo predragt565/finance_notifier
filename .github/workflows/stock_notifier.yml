@@ -36,8 +36,8 @@ jobs:
           restore-keys: |
             alert-state-
       # Test options to reset the cached version 
-      - name: Reset alert_state.json for testing
-        run: echo "{}" > alert_state.json
+      # - name: Reset alert_state.json for testing
+      #   run: echo "{}" > alert_state.json
 
       # - name: Clear previous alert state
         # run: echo "{}" > alert_state.json
