@@ -9,8 +9,9 @@ from src.app.core import run_once
 from pathlib import Path
 from datetime import datetime, timedelta
 import time
-from src.app.utils import mask_secret
+from src.app.utils import mask_secret, commit_and_push_config
 import logging
+import os
 from dotenv import load_dotenv  # Load environment from .env
 
 # Ensure .env variables (e.g., NTFY_TOPIC) are available
@@ -26,7 +27,10 @@ st.sidebar.markdown(f"🔐 Loaded topic: `{mask_secret(cfg['ntfy']['topic'])}`")
 
 st.set_page_config(page_title="Stock Notifier Dashboard by Pred", layout="wide")
 
+# ------------------------------ #
 # --- Sidebar: Configuration ---
+# ------------------------------ #
+
 st.sidebar.title("🔧 Configuration")
 
 # Section: Stocks
@@ -102,8 +106,10 @@ cfg["log"]["to_file"] = log_to_file
 cfg["test"]["dry_run"] = dry_run
 cfg["ntfy"]["refresh_interval"] = refresh_interval
 
+# GitHub Token input field (optional for push)
+gh_token = st.sidebar.text_input("🔑 GitHub Token", type="password")
 
-# --- Save Button ---
+# --- Save Config Button ---
 if st.sidebar.button("💾 Save Configuration"):
     import json
     import copy
@@ -120,6 +126,14 @@ if st.sidebar.button("💾 Save Configuration"):
         with open("config.json", "w", encoding="utf-8") as f:
             json.dump(config_to_save, f, indent=2)
         st.sidebar.success("✅ Configuration saved to config.json")
+
+        # Git push if token is provided
+        if gh_token:
+            if commit_and_push_config(gh_token):
+                st.sidebar.success("🚀 Config pushed to GitHub!")
+            else:
+                st.sidebar.warning("⚠️ Push failed — check token or repo settings.")
+    
     except Exception as e:
         st.sidebar.error(f"❌ Failed to save config: {e}")
 
@@ -140,7 +154,9 @@ with st.sidebar.expander("🔧 Effective Config"):
     safe_cfg["ntfy"].pop("topic")
     st.json(safe_cfg)
     
-# --- Main Content ---
+# ------------------------------ #
+# ------   Main Content   ------
+# ------------------------------ #
 st.title("📡 Stock Notifier Dashboard")
 
 if selected_tickers:
