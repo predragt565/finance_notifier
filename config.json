@@ -12,13 +12,14 @@
     "refresh_interval": 2
   },
   "tickers": [
-    "AAPL",
-    "MSFT",
     "RHM.DE",
-    "O",
-    "QDVX.DE"
+    "BMW.DE",
+    "MBG.DE",
+    "VOW.DE",
+    "AAPL",
+    "GOOG"
   ],
-  "threshold_pct": 0.01,
+  "threshold_pct": 0.05,
   "state_file": "alert_state.json",
   "market_hours": {
     "enabled": true,
