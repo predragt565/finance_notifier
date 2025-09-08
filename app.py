@@ -260,117 +260,123 @@ if selected_tickers:
     for idx, ticker in enumerate(selected_tickers):
         with tabs[idx]:
             try:
-                st.subheader(f"📈 {ticker}")
 
-                # --- Load and display stock meta/info ---
-                meta = get_company_meta(ticker)
-                st.markdown(f"**Company:** {meta.raw_name or meta.name}")
+                # ---------------- Two side-by-side sections ----------------
+                col1, col2 = st.columns(2, gap="large")
 
-                # --- Get intraday data ---
-                df = yf.Ticker(ticker).history(period="1d", interval=data_interval_str)
-                if df.empty:
-                    st.warning("No intraday data available.")
-                    continue
+                # ---------------- Left: Intraday ----------------
+                with col1:
+                    # --- Load and display stock meta/info ---
+                    st.subheader(f"📈 {ticker}")
+                    meta = get_company_meta(ticker)
+                    st.markdown(f"**Company:** {meta.raw_name or meta.name}")
 
-                open_price = df["Open"].iloc[0]
-                close_price = df["Close"].iloc[-1]
-                delta_pct = ((close_price - open_price) / open_price) * 100.0
-                arrow = "🟢 ▲" if delta_pct >= 0 else "🔴 ▼"    
-                body_lines = f"{arrow} Δ={delta_pct:.2f}% vs. Open"
-                last_updated = df.index[-1].strftime("%Y-%m-%d %H:%M")
+                    # --- Get intraday data ---
+                    df = yf.Ticker(ticker).history(period="1d", interval=data_interval_str)
+                    if df.empty:
+                        st.warning("No intraday data available.")
+                    else:
+                        open_price = df["Open"].iloc[0]
+                        close_price = df["Close"].iloc[-1]
+                        delta_pct = ((close_price - open_price) / open_price) * 100.0
+                        arrow = "🟢 ▲" if delta_pct >= 0 else "🔴 ▼"    
+                        body_lines = f"{arrow} Δ={delta_pct:.2f}% vs. Open"
+                        last_updated = df.index[-1].strftime("%Y-%m-%d %H:%M")
 
-                # --------  Plot charts  ----------
-                fig = go.Figure()
-                fig.add_trace(go.Candlestick(
-                    x=df.index,
-                    open=df['Open'],
-                    high=df['High'],
-                    low=df['Low'],
-                    close=df['Close'],
-                    name=ticker
-                ))
-                fig.update_layout(
-                    title=f"{ticker} | Open: {open_price:.2f} | Last: {close_price:.2f}  {body_lines} <br>As of: {last_updated}",
-                    xaxis_title="Time",
-                    yaxis_title="Price"
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                        # --------  Plot charts  ----------
+                        fig = go.Figure()
+                        fig.add_trace(go.Candlestick(
+                            x=df.index,
+                            open=df['Open'],
+                            high=df['High'],
+                            low=df['Low'],
+                            close=df['Close'],
+                            name=ticker
+                        ))
+                        fig.update_layout(
+                            title=f"{ticker} | Open: {open_price:.2f} | Last: {close_price:.2f}  {body_lines} <br>As of: {last_updated}",
+                            xaxis_title="Time",
+                            yaxis_title="Price"
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
 
-                # -------- Show raw intraday data
-                with st.expander("📄 Show raw intraday data (last 50)", expanded=False):
-                    st.dataframe(df.tail(50))
+                        # -------- Show raw intraday data
+                        with st.expander("📄 Show raw intraday data (last 50)", expanded=False):
+                            st.dataframe(df.tail(50))
 
-                # ------------------------------ #
-                # --- ML Prediction Section ----
-                # ------------------------------ #
-                st.subheader("🔮 ML Prediction")
-                                
-                # moved to cached section at the top
-                # df_hist = load_hist_prices(ticker)
-                # df_feat = engineer_features(df_hist)
-                # model = train_model(df_feat)
-                # prediction = predict_move(model, df_feat)
-                # probability_up = predict_move_proba(model, df_feat)
+                # ---------------- Right: ML Prediction ----------------
+                with col2:
+                    # ------------------------------ #
+                    # --- ML Prediction Section ----
+                    # ------------------------------ #
+                    st.subheader("🔮 ML Prediction")
+                                    
+                    # moved to cached section at the top
+                    # df_hist = load_hist_prices(ticker)
+                    # df_feat = engineer_features(df_hist)
+                    # model = train_model(df_feat)
+                    # prediction = predict_move(model, df_feat)
+                    # probability_up = predict_move_proba(model, df_feat)
 
-                # -------- Choose training window period
-                training_period = "2y"
+                    # -------- Choose training window period
+                    training_period = "2y"
 
-                # -------- Use cached versions
-                df_feat = cached_features(ticker, period=training_period)
-                model = cached_model(ticker, period=training_period)
+                    # -------- Use cached versions
+                    df_feat = cached_features(ticker, period=training_period)
+                    model = cached_model(ticker, period=training_period)
 
-                # -------- Label + probability
-                label_up = predict_move(model, df_feat)
-                prob_up = predict_move_proba(model, df_feat)
+                    # -------- Label + probability
+                    label_up = predict_move(model, df_feat)
+                    prob_up = predict_move_proba(model, df_feat)
 
-                if label_up:
-                    st.success(f"⬆️ Expected to Rise (Confidence: {prob_up:.2%})")
-                else:
-                    st.error(f"⬇️ Expected to Fall (Confidence: {(1 - prob_up):.2%})")
+                    if label_up:
+                        st.success(f"⬆️ Expected to Rise (Confidence: {prob_up:.2%})")
+                    else:
+                        st.error(f"⬇️ Expected to Fall (Confidence: {(1 - prob_up):.2%})")
 
-                # -------- Build a plotting DataFrame with last 7 days
-                df_recent = df_feat.tail(7).copy()
-                idx_name = df_recent.index.name or "index"
-                plot_df = df_recent.reset_index().rename(columns={idx_name: "Date"})
+                    # -------- Build a plotting DataFrame with last 7 days
+                    df_recent = df_feat.tail(7).copy()
+                    idx_name = df_recent.index.name or "index"
+                    plot_df = df_recent.reset_index().rename(columns={idx_name: "Date"})
 
-                # -------- Normalize timezone to avoid mixed tz issues across tickers
-                plot_df["Date"] = pd.to_datetime(plot_df["Date"]).dt.tz_localize(None)
+                    # -------- Normalize timezone to avoid mixed tz issues across tickers
+                    plot_df["Date"] = pd.to_datetime(plot_df["Date"]).dt.tz_localize(None)
 
-                # -------- Build a single Plotly chart with two lines:
-                #   - ornage: last 7 daily closes (from plot_df["Close"])
-                #   - blue: MA20
-                fig7 = go.Figure()
-                fig7.add_trace(
-                    go.Scatter(
-                        x=plot_df["Date"],
-                        y=plot_df["Close"],
-                        mode="lines+markers",
-                        name="Last 7-Day Close",  # original last 7-day line (blue by default)
-                        line=dict(color="orange")
+                    # -------- Build a single Plotly chart with two lines:
+                    #   - ornage: last 7 daily closes (from plot_df["Close"])
+                    #   - blue: MA20
+                    fig7 = go.Figure()
+                    fig7.add_trace(
+                        go.Scatter(
+                            x=plot_df["Date"],
+                            y=plot_df["Close"],
+                            mode="lines+markers",
+                            name="Last 7-Day Close",  # original last 7-day line (blue by default)
+                            line=dict(color="orange")
+                        )
                     )
-                )
-                fig7.add_trace(
-                    go.Scatter(
-                        x=plot_df["Date"],
-                        y=plot_df["MA20"],
-                        mode="lines",
-                        name="MA20 Close ",
-                        # line=dict(color="blue")
+                    fig7.add_trace(
+                        go.Scatter(
+                            x=plot_df["Date"],
+                            y=plot_df["MA20"],
+                            mode="lines",
+                            name="MA20 Close ",
+                            # line=dict(color="blue")
+                        )
                     )
-                )
-                fig7.update_layout(title="Last 7 Daily Closes vs MA20", xaxis_title="Date", yaxis_title="Price")
-                st.plotly_chart(fig7, use_container_width=True)
+                    fig7.update_layout(title="Last 7 Daily Closes vs MA20", xaxis_title="Date", yaxis_title="Price")
+                    st.plotly_chart(fig7, use_container_width=True)
 
-                # -------- Show last 7 days movement trend for reference
-                if not df_recent.empty:
-                    # add label column from target and drop original target
-                    df_recent["target_lbl"] = df_recent["target"].map({1: "Up", 0: "Down"}).fillna("N/A")
-                    if "target" in df_recent.columns:
-                        df_recent = df_recent.drop(columns=["target"])
-                
-                # -------- Show last 7 days Close, MA5 & MA20 data
-                with st.expander("📄 Show raw last 7-Day data", expanded=False):
-                    st.dataframe(df_recent.tail(7))
+                    # -------- Show last 7 days movement trend for reference
+                    if not df_recent.empty:
+                        # add label column from target and drop original target
+                        df_recent["target_lbl"] = df_recent["target"].map({1: "Up", 0: "Down"}).fillna("N/A")
+                        if "target" in df_recent.columns:
+                            df_recent = df_recent.drop(columns=["target"])
+                    
+                    # -------- Show last 7 days Close, MA5 & MA20 data
+                    with st.expander("📄 Show raw last 7-Day data", expanded=False):
+                        st.dataframe(df_recent.tail(7))
 
             except Exception as e:
                 st.error(f"Error processing {ticker}: {e}")
