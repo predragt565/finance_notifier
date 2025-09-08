@@ -43,9 +43,9 @@
     "country": "de"
   },
   "intraday_int": {
-  "1 Minute": "1m",
-  "2 Minutes": "2m",
-  "5 Minutes": "5m",
-  "15 Minutes": "15m"
-}
+    "1 Minute": "1m",
+    "2 Minutes": "2m",
+    "5 Minutes": "5m",
+    "15 Minutes": "15m"
+  }
 }
