@@ -9,7 +9,7 @@
   "ntfy": {
     "server": "https://ntfy.sh",
     "topic": "${NTFY_TOPIC}",
-    "refresh_interval": 2
+    "refresh_interval": 30
   },
   "tickers": [
     "RHM.DE",
@@ -19,7 +19,7 @@
     "AAPL",
     "GOOG"
   ],
-  "threshold_pct": 0.05,
+  "threshold_pct": 0.02,
   "state_file": "alert_state.json",
   "market_hours": {
     "enabled": true,
@@ -41,5 +41,11 @@
     "lookback_hours": 6,
     "lang": "de",
     "country": "de"
-  }
+  },
+  "intraday_int": {
+  "1 Minute": "1m",
+  "2 Minutes": "2m",
+  "5 Minutes": "5m",
+  "15 Minutes": "15m"
+}
 }
